@@ -24,15 +24,22 @@ jobs:
         distribution: 'temurin'
         java-version: '11'
 
-    - name: Bypass libtinfo5 dependency
+    - name: Install dependencies
       run: |
         sudo apt update
         sudo apt upgrade -y
-        echo "Bypassing libtinfo5 requirement (if possible)"
+        pip install --upgrade pip
+        pip install buildozer
 
     - name: Build APK
       run: |
         python3 -m venv venv
         source venv/bin/activate
-        # Ваши команды для сборки APK, например:
+        pip install --upgrade buildozer
         buildozer android debug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: built-apk
+        path: bin/data # Укажите путь, где Buildozer сохраняет сгенерированный APK
