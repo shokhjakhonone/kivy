@@ -1,35 +1,47 @@
-name: Build APK
-on: [push]
+os: linux
+dist: focal
+language: python
 
-jobs:
-  build-android:
-    name: Build for Android
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+python:
+  - 3.8
 
-      - name: Buildozer dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y git zip unzip python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev automake
-          sudo apt install -y libncurses-dev
-          wget http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libtinfo5_6.2-0ubuntu2_amd64.deb
-          sudo dpkg -i libtinfo5_6.2-0ubuntu2_amd64.deb || true
-          pip install --user --upgrade Cython virtualenv
-          pip install --user --upgrade buildozer
-          echo 'export PATH=$PATH:~/.local/bin/' >> ~/.bashrc
-          source ~/.bashrc
+install:
+  - sudo apt -y install python3-distutils
+  - sudo apt -y install python3-pip
+  - sudo apt install -y git
+  - git clone https://github.com/kivy/buildozer.git
+  - python3 -m site
+  - ls -l
+  - cd buildozer
+  - ls -l
+  - python3 setup.py install
+  - ls -l
+  - cd ..
+  - ls -l
 
-      - name: Handle Java path
-        run: |
-          export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64
-          sudo update-java-alternatives --set ${JAVA_HOME}
-          export PATH=$JAVA_HOME/bin:$PATH
-          yes | buildozer -v android debug
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: package
-          path: bin/*.apk
+  - sudo apt update
+  - sudo apt install -y git zip unzip openjdk-8-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+  - pip3 install --upgrade Cython==0.29.19 virtualenv
+  - export PATH=$PATH:~/.local/bin/
+  - ls -la
+  - echo "TODO COMPILE 32bit"
+  - yes | cp -f buildozer-32bit.spec buildozer.spec
+  - yes | travis_wait 20 buildozer android debug
+  - ls -la
+  - ls bin/ -l
+  - echo "TODO"
+  - gem install dpl --pre
+  - dpl releases --token $GITHUB_TOKEN --file "bin/mortgagecalculator-2.3-armeabi-v7a-debug.apk" --tag_name "v.2.3"
+  - echo "TODO COMPILE 64bit"
+  - ls -la
+  - rm -r -f .buildozer
+  - ls -la
+  - yes | cp -f buildozer-64bit.spec buildozer.spec
+  - yes | travis_wait 20 buildozer android debug
+  - ls -la
+  - ls bin/ -l
+  - echo "TODO"
+  - gem install dpl --pre
+  - dpl releases --token $GITHUB_TOKEN --file "bin/mortgagecalculator-2.3-arm64-v8a-debug.apk" --tag_name "v.2.3"
+script:
+  - echo "OK"
