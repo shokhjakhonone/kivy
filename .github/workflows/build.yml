@@ -1,20 +1,38 @@
+name: Build APK
+
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build APK
-        uses: digreatbrian/buildozer-action@v2
-        with:
-          python-version: 3.8
-          buildozer-cmd: buildozer -v android debug
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: package
-          path: ./bin/*.apk
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.8
+
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y libtinfo5  # Установка отсутствующего пакета
+        sudo apt upgrade -y
+
+    - name: Build APK
+      run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        # Ваши команды для сборки APK, например:
+        buildozer android debug
