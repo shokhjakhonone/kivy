@@ -24,11 +24,11 @@ jobs:
         distribution: 'temurin'
         java-version: '11'
 
-    - name: Install dependencies
+    - name: Bypass libtinfo5 dependency
       run: |
         sudo apt update
-        sudo apt install -y libtinfo5  # Установка отсутствующего пакета
         sudo apt upgrade -y
+        echo "Bypassing libtinfo5 requirement (if possible)"
 
     - name: Build APK
       run: |
